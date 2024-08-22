@@ -4,36 +4,21 @@ const path = require('path');
 
 // Define the server address and port
 const SERVER_ADDRESS = '0.0.0.0'; // Bind to all available IP addresses
-const SERVER_PORT = 3000;
+const SERVER_PORT = 3001;
 
-// Define the file path for saving the received data
+// Define the file path for saving the received data in the same folder
 const filePath = path.join(__dirname, 'received_data.txt');
 
 // Create a TCP server
 const server = net.createServer((socket) => {
-    console.log('New connection established.');
-
-    // Variable to accumulate received data
-    let receivedData = '';
-
     // Handle incoming data
     socket.on('data', (chunk) => {
-        console.log('Received chunk of data:', chunk.toString());
-        receivedData += chunk.toString(); // Accumulate chunks
-    });
-
-    // Handle end of data reception
-    socket.on('end', () => {
-        console.log('Data reception complete');
-        console.log('Received data:');
-        console.log(receivedData); // Display the accumulated data
-
-        // Write the received data to a .txt file
-        fs.writeFile(filePath, receivedData, (err) => {
+        // Append received data to the file
+        fs.appendFile(filePath, chunk.toString(), (err) => {
             if (err) {
                 console.error('Error writing to file:', err);
             } else {
-                console.log(`Received data saved to ${filePath}`);
+                console.log('Data successfully saved to received_data.txt');
             }
         });
     });
@@ -45,8 +30,13 @@ const server = net.createServer((socket) => {
 
     // Handle client disconnection
     socket.on('close', () => {
-        console.log('Connection closed.');
+        // No need to log anything to the terminal
     });
+});
+
+// Handle server errors
+server.on('error', (err) => {
+    console.error('Server error:', err);
 });
 
 // Start the TCP server
