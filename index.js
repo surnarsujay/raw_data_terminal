@@ -1,8 +1,13 @@
 const net = require('net');
+const fs = require('fs');
+const path = require('path');
 
 // Define the server address and port
 const SERVER_ADDRESS = '0.0.0.0'; // Bind to all available IP addresses
 const SERVER_PORT = 3000;
+
+// Define the file path for saving the received data
+const filePath = path.join(__dirname, 'received_data.txt');
 
 // Create a TCP server
 const server = net.createServer((socket) => {
@@ -21,7 +26,16 @@ const server = net.createServer((socket) => {
     socket.on('end', () => {
         console.log('Data reception complete');
         console.log('Received data:');
-        console.log(receivedData);
+        console.log(receivedData); // Display the accumulated data
+
+        // Write the received data to a .txt file
+        fs.writeFile(filePath, receivedData, (err) => {
+            if (err) {
+                console.error('Error writing to file:', err);
+            } else {
+                console.log(`Received data saved to ${filePath}`);
+            }
+        });
     });
 
     // Handle errors
